@@ -1,49 +1,37 @@
+version: "3.9"
+
 services:
-  db:
-    image: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
-      PGDATA: /data/postgres
-    volumes:
-      - postgres-db:/data/postgres
+  app:
+    image: image_khonhai
+    container_name: container_khonhai
     ports:
-      - "5432:5432"
-  cache:
-    image: redis
-    restart: always
+      - "8000:8000" # Adjust the port number as per your app's configuration
+    depends_on:
+      - redis
+      - postgres
+    # environment:
+    #   AWS_BUCKET_NAME: khonhai-bucket
+    #   AWS_BUCKET_REGION: ap-southeast-1
+    #   AWS_ACCESS_KEY: AKIAYXEDKVHLKJ2RHJHX
+    #   AWS_SECRET_ACCESS_KEY: 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
+
+  redis:
+    image: redis:latest
+    container_name: redis_container_khonhai
     ports:
       - "6379:6379"
-    command: redis-server --save 20 1 --loglevel warning --requirepass secret
-    volumes:
-      - cache:/data
 
-  api:
-    container_name: quotes-api
-    build:
-      context: ./
-      target: production
-    image: quotes-api
-    depends_on:
-      - db
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container_khonhai
     ports:
-      - 8000:8000
+      - "5432:5432"
     environment:
-      NODE_ENV: production
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: secret
-      DB_NAME: db
-      REDIS_HOST: cache
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: secret
-    links:
-      - db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1111
+      POSTGRES_DB: testimg
     volumes:
-      - "./:/src"
+      - postgres_data:/var/lib/postgresql/data
+
 volumes:
-  postgres-db:
-    driver: local
-  cache:
-    driver: local
+  postgres_data:

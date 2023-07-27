@@ -1,5 +1,9 @@
-import { PrismaClient, Status } from "@prisma/client";
-import { IContent, ICreateContent, IDeleteContent } from "../entities/content";
+import { PrismaClient } from "@prisma/client";
+import {
+  IContent,
+  ICreateContent,
+  IUpdateIsArchiveContent,
+} from "../entities/content";
 import { IRepositoryContent } from ".";
 
 export function newRepositoryContent(db: PrismaClient) {
@@ -21,6 +25,24 @@ const includeUser = {
       password: false,
       registeredAt: false,
       updatedAt: false,
+    },
+  },
+};
+
+const includeComment = {
+  comments: {
+    select: {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      isArchive: true,
+      contentId: true,
+      userId: true,
+      foundPlace: true,
+      foundDatetime: true,
+      foundDetail: true,
+      img: true,
+      user: true,
     },
   },
 };
@@ -68,6 +90,7 @@ class RepositoryContent implements IRepositoryContent {
           missingDatetime: arg.missingDatetime,
           missingDetail: arg.missingDetail,
           dateOfBirth: arg.dateOfBirth,
+          status: arg.status,
         },
       })
       .catch((err) =>
@@ -82,6 +105,7 @@ class RepositoryContent implements IRepositoryContent {
         where: {
           id,
         },
+        include: includeComment,
       })
       .catch((err) => Promise.reject(`Fail to get missing case: ${err}`));
   }
@@ -109,13 +133,13 @@ class RepositoryContent implements IRepositoryContent {
       .catch((err) => Promise.reject(`Fail to update missing case: ${err}`));
   }
 
-  // delete case by id with acrive
-  async deleteUserContent(arg: {
+  // update content isArchive
+  async updateUserIsArchiveContent(arg: {
     id: number;
     userId: string;
-    status: Status;
+    status: string;
     isArchive: boolean;
-  }): Promise<IDeleteContent> {
+  }): Promise<IUpdateIsArchiveContent> {
     const content = await this.db.content.findUnique({
       where: { id: arg.id },
     });
@@ -135,6 +159,6 @@ class RepositoryContent implements IRepositoryContent {
           isArchive: arg.isArchive,
         },
       })
-      .catch((err) => Promise.reject(`Fail to delete missing case: ${err}`));
+      .catch((err) => Promise.reject(`Fail to hide missing case: ${err}`));
   }
 }

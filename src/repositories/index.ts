@@ -1,27 +1,44 @@
-import { Status } from "@prisma/client";
-import { IComment, ICreateComment, IDeleteComment } from "../entities/comment";
-import { IContent, ICreateContent, IDeleteContent } from "../entities/content";
+import {
+  IComment,
+  ICreateComment,
+  IUpdateIsArchiveComment,
+} from "../entities/comment";
+import {
+  IContent,
+  ICreateContent,
+  IUpdateIsArchiveContent,
+} from "../entities/content";
+import { ICreateUser, IUser } from "../entities/user";
 
 export interface IRepositoryContent {
   getContents(): Promise<IContent[]>;
   createUserContent(arg: ICreateContent): Promise<IContent>;
   getContentById(id: number): Promise<IContent | null>;
   updateUserContent(arg: IContent): Promise<IContent>;
-  deleteUserContent(arg: {
+  updateUserIsArchiveContent(arg: {
     id: number;
     userId: string;
-    status: Status;
+    status: string;
     isArchive: boolean;
-  }): Promise<IDeleteContent>;
+  }): Promise<IUpdateIsArchiveContent>;
 }
 
 export interface IRepositoryComment {
-  getComments(): Promise<IComment[]>;
   createUserComment(arg: ICreateComment): Promise<IComment>;
   updateUserComment(arg: IComment): Promise<IComment>;
-  deleteUserComment(arg: {
+  updateUserIsArchiveComment(arg: {
     id: number;
     userId: string;
     isArchive: boolean;
-  }): Promise<IDeleteComment>;
+  }): Promise<IUpdateIsArchiveComment>;
+}
+
+export interface IRepositoryUser {
+  createUser(user: ICreateUser): Promise<IUser>;
+  getUser(username: string): Promise<IUser>;
+}
+
+export interface IRepositoryBlacklist {
+  addToBlacklist(token: string): Promise<void>;
+  isBlacklisted(token: string): Promise<boolean>;
 }

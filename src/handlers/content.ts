@@ -1,6 +1,15 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 
 import { IRepositoryContent } from "../repositories";
+
+import { JwtAuthRequest } from "../auth/jwt";
+import { Empty } from "../entities/indes";
+import {
+  WithContent,
+  WithContentId,
+  WithCreateContent,
+  WithIsArchiveContent,
+} from "../entities/content";
 
 export function newHandlerContent(repo: IRepositoryContent) {
   return new HandlerContent(repo);
@@ -15,8 +24,7 @@ class HandlerContent {
 
   // get all case --> list
   async getContents(
-    // waiting for jwt and type
-    req: Request,
+    req: JwtAuthRequest<Empty, Empty>,
     res: Response
   ): Promise<Response> {
     return this.repo
@@ -34,8 +42,7 @@ class HandlerContent {
 
   // create missingcase ---> case id
   async createUserContent(
-    // waiting for jwt and type
-    req: Request,
+    req: JwtAuthRequest<Empty, WithCreateContent>,
     res: Response
   ): Promise<Response> {
     const {
@@ -56,6 +63,7 @@ class HandlerContent {
       missingDatetime,
       missingDetail,
       dateOfBirth,
+      status,
     } = req.body;
     if (
       !userId ||
@@ -74,7 +82,8 @@ class HandlerContent {
       !place ||
       !missingDatetime ||
       !missingDetail ||
-      !dateOfBirth
+      !dateOfBirth ||
+      !status
     ) {
       return res.status(400).json({ error: "missing something in body" }).end();
     }
@@ -82,7 +91,7 @@ class HandlerContent {
     // const userId = req.payload.id
     return await this.repo
       .createUserContent({
-        userId,
+        userId: req.payload.id,
         name,
         surname,
         nickname,
@@ -99,6 +108,7 @@ class HandlerContent {
         missingDatetime,
         missingDetail,
         dateOfBirth,
+        status,
       })
       .then((content) => res.status(200).json(content).end())
       .catch((err) => {
@@ -111,10 +121,9 @@ class HandlerContent {
       });
   }
 
-  // get case by id
+  // get case and all comment by id
   async getContentById(
-    // waiting for jwt and type
-    req: Request,
+    req: JwtAuthRequest<WithContentId, Empty>,
     res: Response
   ): Promise<Response> {
     const id = Number(req.params.id);
@@ -145,8 +154,7 @@ class HandlerContent {
 
   // get case by id and can edit it
   async updateUserContent(
-    // waiting for jwt and type
-    req: Request,
+    req: JwtAuthRequest<WithContentId, WithContent>,
     res: Response
   ): Promise<Response> {
     const {
@@ -211,7 +219,7 @@ class HandlerContent {
     return await this.repo
       .updateUserContent({
         id,
-        userId,
+        userId: req.payload.id,
         name,
         surname,
         nickname,
@@ -245,17 +253,11 @@ class HandlerContent {
   }
 
   // delete comment
-  async deleteUserContent(
-    // waiting for jwt and type
-    req: Request,
+  async updateUserIsArchiveContent(
+    req: JwtAuthRequest<WithContentId, WithIsArchiveContent>,
     res: Response
   ): Promise<Response> {
-    const {
-      userId,
-      status,
-      isArchive,
-    } = req.body;
-
+    const { userId, status, isArchive } = req.body;
 
     const id = Number(req.params.id);
     if (!id) {
@@ -265,11 +267,7 @@ class HandlerContent {
       return res.status(400).json({ error: `id ${id} is not a number` });
     }
 
-    if (
-      !userId ||
-      !status ||
-      !isArchive
-    ) {
+    if (!userId || !status || !isArchive) {
       return res.status(400).json({ error: "missing something in body" }).end();
     }
 
@@ -278,7 +276,12 @@ class HandlerContent {
 
     //  curious? have to Use undefined to skip field when updating?
     return await this.repo
-      .deleteUserContent({ id, userId, status, isArchive })
+      .updateUserIsArchiveContent({
+        id,
+        userId: req.payload.id,
+        status,
+        isArchive,
+      })
       .then((deleted) => res.status(200).json(deleted).end())
       .catch((err) => {
         const errMsg = `failed to delete content ${id}`;

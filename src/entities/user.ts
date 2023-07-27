@@ -1,5 +1,3 @@
-import { Province } from "@prisma/client";
-
 export interface ICreateUser {
   username: string;
   password: string;
@@ -8,7 +6,7 @@ export interface ICreateUser {
   email: string;
   phoneNumber: string;
   address: string;
-  province: Province;
+  province: string;
   postcode: string;
 }
 
@@ -17,4 +15,16 @@ export interface IUser extends ICreateUser {
   password: string;
   registeredAt: Date;
   updatedAt: Date;
+}
+
+export interface WithUser {
+  username: string;
+  password: string;
+  name: string;
+  surname: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  province: string;
+  postcode: string;
 }

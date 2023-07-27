@@ -1,14 +1,11 @@
-/*
-createcommentbyuserbycontentid
-editusercommentbycontentid
-getallcommentbycontentid
-deleteusercommentbycontentid
-*/
-
 import { PrismaClient } from "@prisma/client";
 import {} from "../entities/content";
 import {} from ".";
-import { IComment, ICreateComment, IDeleteComment } from "../entities/comment";
+import {
+  IComment,
+  ICreateComment,
+  IUpdateIsArchiveComment,
+} from "../entities/comment";
 
 export function newRepositoryComment(db: PrismaClient) {
   return new RepositoryComment(db);
@@ -33,45 +30,10 @@ const includeUser = {
   },
 };
 
-// const includeContent = {
-//   user: {
-//     select: {
-//       userId: true,
-//       name: false,
-//       surname: false,
-//       nickname: false,
-//       img: false,
-//       nationality: false,
-//       ageLastSeen: false,
-//       gender: false,
-//       weight: false,
-//       height: false,
-//       skin: false,
-//       remark: false,
-//       province: false,
-//       place: false,
-//       missingDatetime: false,
-//       missingDetail: false,
-//       dateOfBirth: false,
-//       status: false,
-//       createdAt: false,
-//       updatedAt: false,
-//       isArchive: false,
-//     },
-//   },
-// };
-
 class RepositoryComment {
   private readonly db: PrismaClient;
   constructor(db: PrismaClient) {
     this.db = db;
-  }
-
-  // get all comments
-  async getComments(): Promise<IComment[]> {
-    return await this.db.comment
-      .findMany()
-      .catch((err) => Promise.reject(`Failed to get comments: ${err}`));
   }
 
   // create comment
@@ -114,12 +76,12 @@ class RepositoryComment {
       .catch((err) => Promise.reject(`Fail to update comment: ${err}`));
   }
 
-  // delete comment
-  async deleteUserComment(arg: {
+  // update IsArchive comment
+  async updateUserIsArchiveComment(arg: {
     id: number;
     userId: string;
     isArchive: boolean;
-  }): Promise<IDeleteComment> {
+  }): Promise<IUpdateIsArchiveComment> {
     const comment = await this.db.comment.findUnique({
       where: { id: arg.id },
     });
@@ -137,6 +99,6 @@ class RepositoryComment {
           isArchive: arg.isArchive,
         },
       })
-      .catch((err) => Promise.reject(`Fail to delete comment: ${err}`));
+      .catch((err) => Promise.reject(`Fail to hide comment: ${err}`));
   }
 }

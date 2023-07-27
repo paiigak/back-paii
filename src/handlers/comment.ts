@@ -1,6 +1,14 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 
 import { IRepositoryComment } from "../repositories";
+import { JwtAuthRequest } from "../auth/jwt";
+import { Empty } from "../entities/indes";
+import {
+  WithComment,
+  WithCommentId,
+  WithCreateComment,
+  WithIsArchiveComment,
+} from "../entities/comment";
 
 export function newHandlerComment(repo: IRepositoryComment) {
   return new HandlerComment(repo);
@@ -12,29 +20,9 @@ class HandlerComment {
     this.repo = repo;
   }
 
-  // get all comments
-
-  async getComments(
-    // waiting for jwt and type
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    return this.repo
-      .getComments()
-      .then((comments) => res.status(200).json(comments).end())
-      .catch((err) => {
-        const errMsg = `failed to get all comment`;
-        console.error(`${errMsg}: ${err}`);
-        return res
-          .status(500)
-          .json({ error: `${errMsg}` })
-          .end();
-      });
-  }
   // create comment
   async createUserComment(
-    // waiting for jwt and type
-    req: Request,
+    req: JwtAuthRequest<Empty, WithCreateComment>,
     res: Response
   ): Promise<Response> {
     const { contentId, userId, foundPlace, foundDatetime, foundDetail, img } =
@@ -49,12 +37,10 @@ class HandlerComment {
     ) {
       return res.status(400).json({ error: "missing something in body" }).end();
     }
-    // waiting for payload
-    // const userId = req.payload.id
     return await this.repo
       .createUserComment({
         contentId,
-        userId,
+        userId: req.payload.id,
         foundPlace,
         foundDatetime,
         foundDetail,
@@ -73,7 +59,7 @@ class HandlerComment {
   // get comment by id and can edit it
   async updateUserComment(
     // waiting for jwt and type
-    req: Request,
+    req: JwtAuthRequest<WithCommentId, WithComment>,
     res: Response
   ): Promise<Response> {
     const {
@@ -107,15 +93,13 @@ class HandlerComment {
     ) {
       return res.status(400).json({ error: "missing something in body" }).end();
     }
-    // waiting for payload
-    // const userId = req.payload.id
 
     //  curious? have to Use undefined to skip field when updating?
     return await this.repo
       .updateUserComment({
         id,
         contentId,
-        userId,
+        userId: req.payload.id,
         foundPlace,
         foundDatetime,
         foundDetail,
@@ -135,10 +119,9 @@ class HandlerComment {
       });
   }
 
-  // delete comment
-  async deleteUserComment(
-    // waiting for jwt and type
-    req: Request,
+  // update isArchivecomment
+  async updateUserIsArchiveComment(
+    req: JwtAuthRequest<WithCommentId, WithIsArchiveComment>,
     res: Response
   ): Promise<Response> {
     const { userId, isArchive } = req.body;
@@ -153,12 +136,9 @@ class HandlerComment {
       return res.status(400).json({ error: "missing something in body" }).end();
     }
 
-    // waiting for payload
-    // const userId = req.payload.id
-
     //  curious? have to Use undefined to skip field when updating?
     return await this.repo
-      .deleteUserComment({ id, userId, isArchive })
+      .updateUserIsArchiveComment({ id, userId: req.payload.id, isArchive })
       .then((deleted) => res.status(200).json(deleted).end())
       .catch((err) => {
         const errMsg = `failed to delete content ${id}`;

@@ -1,13 +1,3 @@
-// enum contry {
-//   "ไทย" = 1,
-//   LAOS = "ลาว",
-//   KAMAIR = "เขมร",
-// }
-
-// const myCountry = contry["ไทย"];
-// const myCountryTest = contry[1];
-// console.log(myCountry, myCountryTest);
-
 export interface ICreateComment {
   contentId: number;
   userId: string;
@@ -24,6 +14,31 @@ export interface IComment extends ICreateComment {
   isArchive: boolean;
 }
 
-export interface IDeleteComment {
+export interface IUpdateIsArchiveComment {
+  isArchive: boolean;
+}
+
+export interface WithCreateComment {
+  foundPlace: string;
+  foundDatetime: Date;
+  foundDetail: string;
+  img: string;
+  isArchive: boolean;
+  contentId: number;
+  userId: string;
+}
+
+export interface WithCommentId {
+  id: string;
+}
+
+export interface WithComment extends WithCreateComment {
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WithIsArchiveComment {
+  userId: string;
+  contentId: number;
   isArchive: boolean;
 }

@@ -1,12 +1,15 @@
 FROM node:latest
 
-WORKDIR /app
-
 COPY . .
 
+WORKDIR /app
+
 ENV DATABASE_URL="postgresql://postgres:secret@localhost:5432/khonhai?schema=public"
-ENV AUTH_SECRET="authsecret"
 ENV PORT=8000
+# ENV AWS_BUCKET_NAME='khonhai-bucket'
+# ENV AWS_BUCKET_REGION='ap-southeast-1'
+# ENV AWS_ACCESS_KEY='AKIAYXEDKVHLKJ2RHJHX'
+# ENV AWS_SECRET_ACCESS_KEY='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'
 
 RUN npm i
 RUN npm run prisma

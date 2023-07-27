@@ -34,4 +34,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/github-action-khonhai:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/image_khonhai:latest

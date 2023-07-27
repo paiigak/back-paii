@@ -1,5 +1,4 @@
-name: Build and push Docker image
-run-name: "Build and push Docker image for ${{ github.event_name }} on ${{ github.ref_name }} by ${{ github.actor }}"
+name: Final
 
 on:
   push:
@@ -13,6 +12,7 @@ jobs:
   #     runs-on: ubuntu-latest
 
   docker:
+    name: Build and push Docker image ${{ github.event_name }} on ${{ github.ref }}
     # Only start this job after job `test` finished successfully
     # needs: test
     runs-on: ubuntu-latest
@@ -31,11 +31,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          push: true
+          context: .
           file: ./Dockerfile
-          build-args: |
-            FROM_REPO=${{ github.repositoryUrl }}
-            APP_VERSION=${{ github.ref_name }}
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/image_khonhai:${{ github.ref_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/image_khonhai:latest
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/github-action-khonhai:latest

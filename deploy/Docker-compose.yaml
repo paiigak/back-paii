@@ -13,18 +13,18 @@ services:
     environment:
       AWS_BUCKET_NAME: khonhai-bucket
       AWS_BUCKET_REGION: ap-southeast-1
-      AWS_ACCESS_KEY: AKIAYXEDKVHLKJ2RHJHX
-      AWS_SECRET_ACCESS_KEY: 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
-      REDIS_URL: redis://redis:6379
-      DATABASE_URL: postgres:secret@localhost:5432/khonhai?schema=public"
+      AWS_ACCESS_KEY: AKIAYXEDKVHLOVTISAFL
+      AWS_SECRET_ACCESS_KEY: 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
+      REDIS_URL: redis://rd:6379
+      DATABASE_URL: postgres:secret@pg:5432/khonhai?schema=public"
 
-  redis:
+  rd:
     image: redis:latest
     container_name: khonhai-redis
     # ports:
     #   - "6379:6379"
 
-  postgres:
+  pg:
     image: postgres:latest
     container_name: khonhai-postgres
     ports:
